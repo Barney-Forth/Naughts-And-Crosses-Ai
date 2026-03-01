@@ -6,9 +6,9 @@ from numpy import tanh
 
 class Neuron:
     def __init__(self, previous_layer_size: int):
-        self._weights = [random.randrange(-10, 10)
+        self._weights = [random.uniform(-10, 10)
                          for i in range(previous_layer_size)]
-        self._bias = random.randrange(-10, 10)
+        self._bias = random.uniform(-10, 10)
 
     @property
     def weights(self):
@@ -49,9 +49,9 @@ class Neuron:
 
 
 class Layer:
-    def __init__(self, prev_layer_size: int):
-        self._neurons = [Neuron(len(prev_layer_size))
-                         for i in range(len(prev_layer_size))]
+    def __init__(self, size, prev_layer_size: int):
+        self._neurons = [Neuron(prev_layer_size)
+                         for i in range(size)]
 
     @property
     def neurons(self):
@@ -64,8 +64,13 @@ class Layer:
 class Network:
     DIRECTORY = os.getcwd() + "/nets/"
 
-    def __init__(self):
+    def __init__(self, name: str, input_size: int = 10, layer_sizes: list[int] = [20, 9]):
+        self.name = name
         self._layers = []
+        if os.path.exists(self.DIRECTORY + self.name + "/"):
+            self.load_net_values()
+        else:
+            self.new_net(input_size, layer_sizes)
 
     def get_output(self, board_input: list[str], player: int) -> tuple[int, int]:
         net_output = list(map(lambda x: 1 if x == "X" else -1 if x == "O" else 0,
@@ -78,34 +83,39 @@ class Network:
 
         return (position // 3, position % 3)
 
-    def new_net(self, name: str, input_size: int, layer_sizes: list[int]):
-        if not os.path.exists(self.DIRECTORY + name + "/"):
-            os.makedirs(self.DIRECTORY + name + "/")
+    def new_net(self, input_size: int, layer_sizes: list[int]):
+        if not os.path.exists(self.DIRECTORY + self.name + "/"):
+            os.makedirs(self.DIRECTORY + self.name + "/")
 
-        self._layers = [Layer(size) for size in [input_size] + layer_sizes]
+        prev_layer_sizes = [input_size] + layer_sizes[:-1]
+
+        self._layers = [Layer(layer_sizes[i], prev_layer_sizes[i])
+                        for i in range(len(layer_sizes))]
         self.save_net_values()
 
     def save_net_values(self):
         for i, layer in enumerate(self._layers):
-            with open(self.DIRECTORY + self._name + f"/layer_{i}.csv", "w") as f:
+            with open(self.DIRECTORY + self.name + f"/layer_{i}.csv", "w", newline="") as f:
+                neurons = [neuron.weights + [neuron.bias]
+                           for neuron in layer.neurons]
                 writer = csv.writer(f)
-                for neuron in layer.neurons:
-                    writer.writerow(neuron.weights + [neuron.bias])
+                writer.writerows(neurons)
 
-    def load_net_values(self, net_name: str):
-        if not os.path.exists(self.DIRECTORY + net_name + "/"):
+    def load_net_values(self):
+        if not os.path.exists(self.DIRECTORY + self.name + "/"):
             raise FileNotFoundError(
-                f"No file found at {self.DIRECTORY + net_name}/.")
+                f"No file found at {self.DIRECTORY + self.name}/")
 
-        files = os.listdir(self.DIRECTORY + net_name + "/")
+        files = os.listdir(self.DIRECTORY + self.name + "/")
         prev_layer_size = 10
 
         for file in files:
-            self._layers.append(Layer(prev_layer_size))
-            with open(self.DIRECTORY + net_name + "/" + file, "r") as f:
-                prev_layer_size = 0
+            with open(self.DIRECTORY + self.name + "/" + file, "r") as f:
                 reader = csv.reader(f)
-                for i in range(len(reader)):
+                self._layers.append(
+                    Layer(sum(1 for row in reader), prev_layer_size))
+                prev_layer_size = 0
+                for i in range(sum(1 for row in reader)):
                     row = next(reader)
                     self._layers[-1].neurons[i].weights = list(
                         map(float, row[:-1]))

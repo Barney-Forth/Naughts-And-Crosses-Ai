@@ -1,4 +1,4 @@
-import NeuralNet
+from NeuralNet import Network
 
 
 PLAYERS = ("O", "X")
@@ -20,7 +20,7 @@ class Board:
 
         return "\n".join(rows)
 
-    def _get_space_value(self, position: tuple[int, int]) -> str:
+    def get_space_value(self, position: tuple[int, int]) -> str:
         row, col = position
         if type(row) != int or type(col) != int:
             raise TypeError("Both row and col hould be integers.")
@@ -31,7 +31,7 @@ class Board:
         return self._board[row][col]
 
     def update_board(self, position: tuple[int, int], player: str):
-        if self._get_space_value(position) == " ":
+        if self.get_space_value(position) == " ":
             row, col = position
             self._board[row][col] = player
 
@@ -82,7 +82,7 @@ class Board:
                         pass
 
             try:
-                if self._get_space_value(row, col) == " ":
+                if self.get_space_value(row, col) == " ":
                     valid = True
             except TypeError:
                 print("ERROR MESSAGE")
@@ -118,8 +118,7 @@ def play_2_players():
 def play_1_player():
     board = Board()
     player = 0
-    network = NeuralNet.Network()
-    network.load_net_values("best_net")
+    network = Network("best_net")
 
     while not board.is_full() and not board.is_three_in_row():
         print(board)
