@@ -1,5 +1,5 @@
-import pygame
-import Graphics
+
+PLAYERS = ("O", "X")
 
 
 class Board:
@@ -43,67 +43,68 @@ class Board:
                 return True
 
         down_diagonal = [self._board[x][x] for x in range(3)]
+        if len(set(down_diagonal)) == 1 and " " not in down_diagonal:
+            return True
+
         up_diagonal = [self._board[x][2 - x] for x in range(3)]
 
-        return (len(set(down_diagonal)) == 1 and " " not in down_diagonal) or (len(set(up_diagonal)) == 1 and " " not in up_diagonal)
+        return (len(set(up_diagonal)) == 1 and " " not in up_diagonal)
 
-    def is_board_full(self) -> bool:
+    def is_full(self) -> bool:
         for row in self._board:
             if " " in row:
                 return False
 
         return True
 
+    def flatten(self) -> list[str]:
+        return [self._board[row][col] for row in range(3) for col in range(3)]
 
-PROGRAM_NAME = "Naughts and Crosses"
 
-SCREEN_WIDTH = 192
-SCREEN_HIGHT = 192
+def get_move(board: Board) -> tuple[int, int]:
+    valid = False
+    while not valid:
+        move = input("Suitable promt: ")
 
-BUTTON_SCALE = 4
+        row = -1
+        col = -1
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT))
-pygame.display.set_caption(PROGRAM_NAME)
-
-empty_space_image = pygame.image.load("Blank_Space.png").convert_alpha()
-naught_space_image = pygame.image.load("Naught_Space.png").convert_alpha()
-cross_space_image = pygame.image.load("Cross_Space.png").convert_alpha()
-
-PLAYERS = (("O", naught_space_image), ("X", cross_space_image))
-buttons = [[Graphics.Button(empty_space_image, 64 * x, 64 * y, BUTTON_SCALE)
-            for x in range(3)] for y in range(3)]
-
-board = Board()
-player = 0
-
-running = True
-while running:
-    for row in range(3):
-        for col in range(3):
-            buttons[row][col].draw(screen)
-            if buttons[row][col].is_clicked():
-                board.update_board(row, col, PLAYERS[player][0])
-                buttons[row][col].image = PLAYERS[player][1]
-                if board.is_three_in_row():
-                    # display win text
-                    Graphics.display_text(
-                        f"{PLAYERS[player][0]} wins!", screen)
-                    # stop playing
-                    pass
-                elif board.is_board_full():
-                    # dsplay draw text
-                    Graphics.display_text("Draw.", screen)
-                    # stop playing
-                    pass
+        for char in move:
+            if char.isdigit():
+                if col == -1:
+                    col = int(char) - 1
+                elif row == -1:
+                    row = int(char) - 1
                 else:
-                    player = (player + 1) % 2
+                    pass
 
-    screen.fill("#000000")
+        try:
+            if board.get_space_value(row, col) == " ":
+                valid = True
+        except TypeError:
+            print("ERROR MESSAGE")
+        except ValueError:
+            print("ERROR MESSAGE")
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    return (row, col)
 
-    pygame.display.update()
 
-pygame.quit()
+def play():
+    board = Board()
+    player = 0
+
+    while not board.is_full() and not board.is_three_in_row():
+        print(board)
+        move = get_move(board)
+        print()
+
+        board.update_board(move[0], move[1], PLAYERS[player])
+
+        if board.is_three_in_row():
+            print(board)
+            print(f"{PLAYERS[player]} wins!")
+        elif board.is_full():
+            print(board)
+            print("Draw.")
+        else:
+            player = (player + 1) % 2
