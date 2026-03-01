@@ -1,3 +1,5 @@
+import NeuralNet
+
 
 PLAYERS = ("O", "X")
 
@@ -18,7 +20,8 @@ class Board:
 
         return "\n".join(rows)
 
-    def get_space_value(self, row: int, col: int) -> str:
+    def _get_space_value(self, position: tuple[int, int]) -> str:
+        row, col = position
         if type(row) != int or type(col) != int:
             raise TypeError("Both row and col hould be integers.")
 
@@ -27,8 +30,9 @@ class Board:
 
         return self._board[row][col]
 
-    def update_board(self, row: int, col: int, player: str):
-        if self.get_space_value(row, col) == " ":
+    def update_board(self, position: tuple[int, int], player: str):
+        if self._get_space_value(position) == " ":
+            row, col = position
             self._board[row][col] = player
 
     def is_three_in_row(self) -> bool:
@@ -60,45 +64,74 @@ class Board:
     def flatten(self) -> list[str]:
         return [self._board[row][col] for row in range(3) for col in range(3)]
 
+    def get_move(self) -> tuple[int, int]:
+        valid = False
+        while not valid:
+            move = input("Suitable promt: ")
 
-def get_move(board: Board) -> tuple[int, int]:
-    valid = False
-    while not valid:
-        move = input("Suitable promt: ")
+            row = -1
+            col = -1
 
-        row = -1
-        col = -1
+            for char in move:
+                if char.isdigit():
+                    if col == -1:
+                        col = int(char) - 1
+                    elif row == -1:
+                        row = int(char) - 1
+                    else:
+                        pass
 
-        for char in move:
-            if char.isdigit():
-                if col == -1:
-                    col = int(char) - 1
-                elif row == -1:
-                    row = int(char) - 1
-                else:
-                    pass
+            try:
+                if self._get_space_value(row, col) == " ":
+                    valid = True
+            except TypeError:
+                print("ERROR MESSAGE")
+            except ValueError:
+                print("ERROR MESSAGE")
 
-        try:
-            if board.get_space_value(row, col) == " ":
-                valid = True
-        except TypeError:
-            print("ERROR MESSAGE")
-        except ValueError:
-            print("ERROR MESSAGE")
-
-    return (row, col)
+        return (row, col)
 
 
-def play():
+def play_2_players():
     board = Board()
     player = 0
 
     while not board.is_full() and not board.is_three_in_row():
         print(board)
-        move = get_move(board)
+
+        move = board.get_move()
+
         print()
 
-        board.update_board(move[0], move[1], PLAYERS[player])
+        board.update_board(move, PLAYERS[player])
+
+        if board.is_three_in_row():
+            print(board)
+            print(f"{PLAYERS[player]} wins!")
+        elif board.is_full():
+            print(board)
+            print("Draw.")
+        else:
+            player = (player + 1) % 2
+
+
+def play_1_player():
+    board = Board()
+    player = 0
+    network = NeuralNet.Network()
+    network.load_net_values("best_net")
+
+    while not board.is_full() and not board.is_three_in_row():
+        print(board)
+
+        if player == 0:
+            move = board.get_move()
+        else:
+            move = network.get_output(board.flatten(), player)
+
+        print()
+
+        board.update_board(move, PLAYERS[player])
 
         if board.is_three_in_row():
             print(board)
