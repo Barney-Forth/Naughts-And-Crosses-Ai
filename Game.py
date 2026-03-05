@@ -113,7 +113,7 @@ class Board:
         """
         valid = False
         while not valid:
-            move = input("Suitable promt: ")
+            move = input("Where to move in col, row format (e.g., 1,2): ")
 
             row = -1
             col = -1
@@ -128,12 +128,14 @@ class Board:
                         pass
 
             try:
-                if self.get_space_value(row, col) == " ":
+                if self.get_space_value((row, col)) == " ":
                     valid = True
+                else:
+                    print("That space is already occupied.")
             except TypeError:
-                print("ERROR MESSAGE")
+                print("Should give two digits separated by a comma.")
             except ValueError:
-                print("ERROR MESSAGE")
+                print("Both row and col should be in the range 1-3.")
 
         return (row, col)
 
@@ -181,6 +183,7 @@ def play_1_player():
         if player == 0:
             move = board.get_move()
         else:
+            print("AI is thinking...")
             move = network.get_output(board.flatten(), player)
 
         print()
@@ -195,3 +198,7 @@ def play_1_player():
             print("Draw.")
         else:
             player = (player + 1) % 2
+
+
+if __name__ == "__main__":
+    play_1_player()

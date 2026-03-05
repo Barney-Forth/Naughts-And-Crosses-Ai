@@ -1,6 +1,7 @@
 import random
 from Game import Board, PLAYERS
 from NeuralNet import Network
+import time
 
 
 class Trainer:
@@ -32,9 +33,9 @@ class Trainer:
             for neuron in layer.neurons:
                 for i in range(len(neuron.weights)):
                     if random.random() < mutation_rate:
-                        neuron.weights[i] += random.gauss(0, 0.1)
+                        neuron.weights[i] += random.gauss(0, 1.0)
                 if random.random() < mutation_rate:
-                    neuron.bias += random.gauss(0, 0.1)
+                    neuron.bias += random.gauss(0, 1.0)
         return child_net
 
     def train(self, num_of_rounds: int, mutation_rate: float):
@@ -44,10 +45,36 @@ class Trainer:
             num_of_rounds: The number of training rounds (generations) to run.
             mutation_rate: Probability (0-1) that each weight/bias is mutated.
         """
+        start_time = time.time()
+
         for i in range(num_of_rounds):
             child_net = self._create_child_net(mutation_rate)
-            if self._play_nets(self._net, child_net) == child_net:
+
+            # Best of three: play 3 games
+            child_wins = 0
+            parent_wins = 0
+
+            for game in range(3):
+                winner = self._play_nets(self._net, child_net)
+                if winner == child_net:
+                    child_wins += 1
+                elif winner == self._net:
+                    parent_wins += 1
+
+            # If child wins majority (2+ out of 3), replace parent
+            if child_wins > parent_wins:
                 self._net = child_net
+
+            # Print progress every 10 rounds
+            if (i + 1) % 10 == 0:
+                elapsed = time.time() - start_time
+                rounds_per_sec = (i + 1) / elapsed
+                remaining_rounds = num_of_rounds - (i + 1)
+                time_remaining = remaining_rounds / rounds_per_sec
+
+                print(f"Round {i + 1}/{num_of_rounds} - "
+                      f"Elapsed: {elapsed:.1f}s - "
+                      f"Est. remaining: {time_remaining:.1f}s")
 
         self._net.save_net_values()
 
@@ -75,8 +102,8 @@ class Trainer:
                 try:
                     if board.get_space_value(move) == " ":
                         valid = True
-                        print(
-                            f"Player {player} ({PLAYERS[player]}) moves to {move}")
+                        # print(
+                        # f"Player {player} ({PLAYERS[player]}) moves to {move}")
                     else:
                         print("NOT WORKING1")
                 except (TypeError, ValueError):
@@ -85,16 +112,16 @@ class Trainer:
             board.update_board(move, PLAYERS[player])
 
             if board.is_three_in_row():
-                print(board)
+                # print(board)
                 return net1 if player == 0 else net2
 
             player = (player + 1) % 2
 
-        print(board)
+        # print(board)
         return None
 
 
 if __name__ == "__main__":
     trainer = Trainer("best_net")
-    trainer.train(1000, 0.1)
+    trainer.train(1000000, 1.0)
     print("Training complete.")

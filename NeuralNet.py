@@ -143,6 +143,7 @@ class Network:
         Args:
             board_input: A flattened list representing the board (9 elements).
             player: The current player (0 or 1).
+            failed_moves: A list of moves that have already been tried.
 
         Returns:
             A tuple of (row, col) representing the recommended move.
@@ -153,9 +154,19 @@ class Network:
         for layer in self._layers:
             net_output = layer.output(net_output)
 
-        position = net_output.index(max(net_output))
+        sorted_output = sorted(net_output, reverse=True)
 
-        return (position // 3, position % 3)
+        for move in sorted_output:
+            position = net_output.index(move)
+            if board_input[position] == " ":
+                return (position // 3, position % 3)
+
+        # Fallback: return the first empty position if none found above
+        for i in range(len(board_input)):
+            if board_input[i] == " ":
+                return (i // 3, i % 3)
+
+        return (0, 0)
 
     def new_net(self, input_size: int, layer_sizes: list[int]):
         """Create a new network with random weights and save it to disk.
