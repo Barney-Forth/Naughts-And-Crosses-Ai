@@ -3,6 +3,11 @@ from Game import Board, PLAYERS
 from NeuralNet import Network
 import time
 
+# Change these values to change the properites of training
+TRAINING_NET = "best_net"
+TRAINING_CYCLES = 100000
+MUTATION_RATE = 0.7
+
 
 class Trainer:
     """Trains a neural network using evolutionary algorithms.
@@ -122,6 +127,6 @@ class Trainer:
 
 
 if __name__ == "__main__":
-    trainer = Trainer("best_net")
-    trainer.train(1000000, 1.0)
+    trainer = Trainer(TRAINING_NET)
+    trainer.train(TRAINING_CYCLES, MUTATION_RATE)
     print("Training complete.")
