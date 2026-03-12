@@ -4,9 +4,9 @@ from NeuralNet import Network
 import time
 
 # Change these values to change the properites of training
-TRAINING_NET = "best_net"
-TRAINING_CYCLES = 100000
-MUTATION_RATE = 0.7
+TRAINING_NET = "best_net"  # String of the name of the net to train
+TRAINING_CYCLES = 100000  # int of the number of training cycles
+MUTATION_RATE = 0.7  # float between 0 and 1 defining the mutation rate
 
 
 class Trainer:

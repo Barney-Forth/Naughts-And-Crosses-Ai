@@ -1,5 +1,8 @@
 from NeuralNet import Network
 
+# Change this to chage the net to play against
+PLAYING_NET = "best_net"
+
 
 PLAYERS = ("O", "X")
 
@@ -175,7 +178,7 @@ def play_1_player():
     """
     board = Board()
     player = 0
-    network = Network("best_net")
+    network = Network(PLAYING_NET)
 
     while not board.is_full() and not board.is_three_in_row():
         print(board)

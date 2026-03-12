@@ -3,6 +3,9 @@ import threading
 from Game import Board, PLAYERS
 from NeuralNet import Network
 
+# Change this value to change the net you play against
+PLAYING_NET = "best_net"
+
 
 class TicTacToeGUI:
     """A tkinter GUI for playing Naughts and Crosses (Tic-Tac-Toe) against the AI."""
@@ -19,7 +22,7 @@ class TicTacToeGUI:
 
         # Game state
         self.board = None
-        self.network = Network("best_net")
+        self.network = Network(PLAYING_NET)
         self.human_player = None  # 0 = 'O', 1 = 'X'
         self.ai_player = None
         self.current_player = 0
