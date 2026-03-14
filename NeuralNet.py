@@ -64,9 +64,9 @@ class Neuron:
         weighted_values = [self._weights[i] * prev_layer[i]
                            for i in range(len(prev_layer))]
 
-        sumed_values = sum(weighted_values) + self._bias
+        summed_values = sum(weighted_values) + self._bias
 
-        return tanh(sumed_values)
+        return tanh(summed_values)
 
     def __str__(self) -> str:
         return f"weights: {self._weights}, bias: {self._bias}"

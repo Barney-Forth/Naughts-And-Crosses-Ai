@@ -1,6 +1,6 @@
 from NeuralNet import Network
 
-# Change this to chage the net to play against
+# Change this to change the net to play against
 PLAYING_NET = "best_net"
 
 
