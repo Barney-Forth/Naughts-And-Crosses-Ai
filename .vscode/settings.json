@@ -1,5 +1,8 @@
 {
     "cSpell.ignoreWords": [
         "numpy"
+    ],
+    "cSpell.words": [
+        "pycache"
     ]
 }
