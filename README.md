@@ -1,6 +1,6 @@
-# Naughts-and-Crosses AI
+# Noughts-and-Crosses AI
 
-Naughts-and-Crosses is a personal learning Python project I used to learn the basics of neural networks, and evolutionary machine learning algorithms.
+Noughts-and-Crosses is a personal learning Python project I used to learn the basics of neural networks, and evolutionary machine learning algorithms.
 
 Development has stopped for now but plan to return to the project in the future to work on features outlined in the roadmap.
 
